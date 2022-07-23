@@ -1,0 +1,325 @@
+<div class="container">
+  <div class="container mt-3">
+    <% if(error) { %>
+      <div onclick="document.querySelector('.hide').style.display = 'none'" class="alert alert-danger hide"
+        role="alert">
+        <%= error %> <i class="fa fa-times float-right" aria-hidden="true"></i>
+      </div>
+      <%}%>
+        <% if(success) { %>
+          <div onclick="document.querySelector('.hide').style.display = 'none'" class="alert alert-success hide"
+            role="alert">
+            <%= success %> <i class="fa fa-times float-right" aria-hidden="true"></i>
+          </div>
+          <%}%>
+
+            <h2 class="mb-2">Welcom! Tweet Now!</h2>
+            <form enctype="multipart/form-data" method="POST" action="/createPost">
+              <input type="hidden" name="_csrf" value="<%= _csrf %>" id="csrf" />
+              <div class="form-group">
+                <input type="text" name="title" class="form-control" required placeholder="Enter the title.">
+              </div>
+              <div class="form-group">
+                <textarea name="description" placeholder="write your tweet here!" class="form-control" required
+                  id="exampleFormControlTextarea1" rows="3"></textarea>
+              </div>
+              <div class="custom-file mb-3">
+                <input type="file" name="image" onchange="showSuccess()" class="custom-file-input"
+                  id="validatedCustomFile" required>
+                <label class="custom-file-label" id="success" for="validatedCustomFile">Choose file...</label>
+                <div class="invalid-feedback"></div>
+              </div>
+              <button type="submit" class="btn btn-dark  mb-5">Tweet</button>
+            </form>
+  </div>
+
+  <div class="container">
+    <h2>New Tweets</h2>
+    <% if(posts.length <=0) { %>
+      <span class="badge badge-danger">No Tweets Yet!</span>
+      <% } else {%>
+        <% posts.forEach(post=> { %>
+          <div class="accordion" id="accordionExample">
+            <div class="card">
+              <div class="card-header" id="headingTwo">
+                <h2 class="mb-0">
+                  <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                    data-target="#collapse<%=post.id%>" aria-expanded="false" aria-controls="collapse<%=post.id%>">
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <%= post.title %>
+                  </button>
+                </h2>
+              </div>
+              <div id="collapse<%=post.id%>" class="collapse" aria-labelledby="headingTwo"
+                data-parent="#accordionExample">
+                <div class="card-body">
+                  <%= post.description %>
+                </div>
+                <div class="card-body">
+                  <img src="<%= post.imagePath %>" class="img-fluid rounded mx-auto d-block" alt="image">
+                </div>
+                <% if(post.owner===userId) { %>
+                  <div>
+                    <form action="/post/showEditForm/<%=post.id%>" method="GET">
+                      <button class="btn btn-warning float-right m-1">Edit</button>
+                    </form>
+                    <form action="/post/delete/<%=post.id%>" method="POST">
+                      <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+                      <button class="btn btn-danger float-right m-1">Delete</button>
+                    </form>
+                  </div>
+                  <% } %>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+            <% } %>
+  </div>
+</div>
+
+<br>
+<div class="container">
+  <div class="row" style="margin: auto;">
+    <div class="col-md-6 mx-auto">
+      <div class="card">
+        <div onclick="change1()" class="card-header text-center">
+          <span id="chat-name">Chat Box</span>
+        </div>
+        <div class="card-body chat-care" id="card-body">
+          <ul class="chat" id="chat">
+
+            <!-- Dynamically render the messages here -->
+
+          </ul>
+
+        </div>
+        <div class="card-footer" style="display: none">
+          <div class="input-group">
+            <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+            <input type="hidden" id="myId" value="<%=req.me.id%>" />
+            <input type="hidden" id="myName" value="<%=req.me.fullName%>" />
+            <input type="hidden" id="myAvatar" value="<%=req.me.avatarURL%>" />
+
+            <span class="input-group-btn">
+              <button class="btn btn-primary" id="btn-chat" onclick="sendMessage()">
+                Send
+              </button>
+            </span>
+            <span class="input-group-btn chatError">
+
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mx-auto">
+      <div class="card w-50">
+        <div onclick="change2()" class="card-header text-center">
+          <span>Users</span>
+        </div>
+        <div class="card-body chat-care" id="card-body-users">
+          <ul class="chat usersUl">
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="/dependencies/sails.io.js"></script>
+
+<script>
+
+  const csrf = document.getElementById('csrf').value;
+  let userToSendTo;
+  let myId = document.getElementById('myId').value;
+
+  const showSuccess = () => {
+    document.getElementById('success').innerHTML = "Image uploaded.";
+    document.getElementById('success').style.color = "green";
+  }
+
+  const change1 = () => {
+    let button = document.getElementById('card-body');
+    if (button.style.display === 'none') {
+      button.style.display = 'block';
+    } else {
+      button.style.display = 'none';
+    }
+  }
+
+  const change2 = () => {
+    let button = document.getElementById('card-body-users');
+    if (button.style.display === 'none') {
+      button.style.display = 'block';
+    } else {
+      button.style.display = 'none';
+    }
+  }
+
+  io.socket.get('/users', function (resData) {
+    let users = resData.users;
+    let me = resData.me;
+    handleUsersDom(users, me);
+  })
+
+  function handleUsersDom(users, me) {
+    users.forEach(user => {
+      let ul = document.querySelector('.usersUl');
+      let li = document.createElement('li');
+      li.classList.add('w-100');
+      li.classList.add('mb-4');
+      li.classList.add('adminImage');
+      let img = document.createElement('img');
+      li.onclick = function renderUserToChat() {
+        io.socket.get(`/users/getUser/${user.id}`, function (resData) {
+          io.socket.get(`/users/messages/${resData.user[0].id}`, function (response) {
+            handleChatBox(resData.user[0], response.messages, me);
+          })
+        })
+      }
+      img.src = user.avatarURL;
+      img.classList.add('img-thumbnail')
+      img.classList.add('img-circle')
+      li.appendChild(img);
+      ul.appendChild(li);
+    })
+  }
+
+  function handleChatBox(user, messages, me) {
+    let roomName = `room_${me.id}_to_${user.id}`;
+    io.socket.put('/users/joinRoomAndGetAllMessages', { roomName: roomName, _csrf: csrf, sender: me.id, receiver: user.id }, function (resData, jwr) {
+      if (jwr.error) console.log(jwr.error);
+      document.getElementById('chat-name').innerHTML = user.fullName;
+      document.querySelector('.card-footer').style.display = 'block';
+      userToSendTo = user;
+      // TODO later after finishing createion.
+      let chat = document.getElementById('chat');
+      chat.innerHTML = '';
+      let allMessages = [...resData.sentmessages, ...resData.receivedmessages];
+      allMessages.sort(function (a, b) {
+        return new Date(a.updatedAt) - new Date(b.updatedAt)
+      })
+      console.log(allMessages)
+      if (allMessages.length >= 0) {
+        let htmlText
+        allMessages.forEach(message => {
+          htmlText = ''
+          if (message.receiver === me.id) {
+            htmlText = `
+          <li class="agent clearfix">
+              <span class="chat-img left clearfix mx-2">
+                <img src="${user.avatarURL}" alt="Agent" class="img-thumbnail img-circle" id="chat-avatar" />
+              </span>
+              <div class="chat-body clearfix">
+                <div class="header clearfix">
+                  <strong class="primary-font">${user.fullName}</strong> 
+                </div>
+                <p>
+                  ${message.details}
+                </p>
+              </div>
+            </li>
+            `
+            chat.insertAdjacentHTML('beforeend', htmlText)
+          } else {
+            htmlText = `<li class="admin clearfix">
+              <span class="chat-img right clearfix  mx-2">
+                <img src="${me.avatarURL}" alt="Admin" class="img-thumbnail img-circle" />
+              </span>
+              <div class="chat-body clearfix">
+                <div class="header clearfix">
+                  <strong class="right primary-font">${me.fullName}</strong>
+                </div>
+                <p>
+                  ${message.details}
+                </p>
+              </div>
+            </li>
+            `
+            chat.insertAdjacentHTML('beforeend', htmlText)
+          }
+
+        })
+      }
+    })
+
+    let toScroll = document.querySelector('.chat-care');
+    scrollToBottom(toScroll);
+  }
+
+  function scrollToBottom(element) {
+    element.scrollTop = element.scrollHeight;
+  }
+
+  // function millisToMinutesAndSeconds(millis) {
+  //   let dt = new Date();
+  //   let currentMillis = dt.getMilliseconds();
+  //   let milliSeconds = currentMillis - millis;
+  //   let minutes = Math.floor(milliSeconds / 60000);
+
+  //   console.log('minutes : ', minutes)
+  //   return minutes;
+  // }
+
+  const sendMessage = () => {
+    let myName = document.getElementById('myName').value;
+    let myAvatar = document.getElementById('myAvatar').value;
+    const MsgInput = document.getElementById('btn-input');
+    if (!MsgInput.value) {
+      return;
+    }
+    let roomName = `room_${myId}_to_${userToSendTo.id}`;
+    io.socket.put('/users/sendMessage', { roomName: roomName, _csrf: csrf, sender: myId, receiver: userToSendTo.id, message: MsgInput.value }, function (resData, jwr) {
+      if (jwr.error) console.log(jwr.error);
+      let chat = document.getElementById('chat');
+      chat.insertAdjacentHTML('beforeend', `
+      <li class="admin clearfix">
+        <span class="chat-img right clearfix  mx-2">
+                <img src="${myAvatar}" alt="Admin" class="img-thumbnail img-circle" />
+              </span>
+              <div class="chat-body clearfix">
+                <div class="header clearfix">
+                  <strong class="right primary-font">${myName}</strong>
+                </div>
+                <p>
+                 ${MsgInput.value}
+                </p>
+              </div>
+            </li>
+      `);
+      let toScroll = document.querySelector('.chat-care');
+      scrollToBottom(toScroll);
+      MsgInput.value = '';
+    })
+  }
+  io.socket.on('connect', function onConnect() {
+    io.socket.on('message', function (response) {
+      console.log(response)
+      console.log(myId)
+      if (myId == response.receiverId) {
+        htmlText = `
+          <li class="agent clearfix">
+              <span class="chat-img left clearfix mx-2">
+                <img src="${response.sender[0].avatarURL}" alt="Agent" class="img-thumbnail img-circle" id="chat-avatar" />
+              </span>
+              <div class="chat-body clearfix">
+                <div class="header clearfix">
+                  <strong class="primary-font">${response.sender[0].fullName}</strong> <small class="right text-muted">
+                </div>
+                <p>
+                  ${response.msg}
+                </p>
+              </div>
+            </li>
+            `
+        chat.insertAdjacentHTML('beforeend', htmlText)
+        let toScroll = document.querySelector('.chat-care');
+        scrollToBottom(toScroll);
+      }
+
+    })
+  });
+</script>

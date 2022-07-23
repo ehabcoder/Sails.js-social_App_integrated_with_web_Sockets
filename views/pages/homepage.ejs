@@ -1,0 +1,50 @@
+<div id="homepage" v-cloak>
+  <div style="padding-top: 100px; padding-bottom: 25px; color: #14acc2;" class="d-flex flex-column justify-content-center position-relative" purpose="full-page-hero">
+    <div class="container text-center">
+      <div style="width: 220px; height: 170px;" class="mx-auto position-relative">
+        <img style="width: 170px; left: 25px; top: 25px;" class="position-absolute" alt="The sky above the ocean" src="/images/hero-sky.png"/>
+        <img style="width: 80px; top: 55px; left: -40px;" class="position-absolute" purpose="cloud-1" alt="A grayish-blue cloud" src="/images/hero-cloud.png"/>
+        <img style="width: 80px; top: 45px; left: -40px;" class="position-absolute" purpose="cloud-2" alt="Another grayish-blue cloud" src="/images/hero-cloud.png"/>
+        <img style="width: 160px; bottom: 50px; left: 18px;" class="position-absolute" purpose="ship" alt="A ship hovering a few feet over the surface of the water, bearing a flagpole with the Sails.js logo" src="/images/hero-ship.png"/>
+        <img style="width: 170px; bottom: 40px; left: 25px;" class="position-absolute" alt="The shadow of the floating ship on the water" src="/images/hero-water.png"/>
+      </div>
+      <h1 class="display-4 pb-5">Welcome to our Sails <strong>Social app.</strong> </h1>
+      <div>
+        <div style="cursor: pointer; bottom: 25px; left: 0;" class="position-absolute w-100 mt-5" purpose="more-info-text" @click="clickHeroButton()">
+          <div style="letter-spacing: 2px;" class="text-uppercase font-weight-bold">Dive in</div>
+          <div style="font-size: 20px;">&darr;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="background-color: rgba(238, 245, 249, 0.72);" class="text-center py-5" purpose="scroll-destination">
+    <div class="container pt-3 pb-5" purpose="about-section">
+      <h3>In this project you can...</h3>
+      <div class="row pt-5">
+        <div class="mb-4 mb-sm-0 col-sm">
+          <div style="color: #fff; background-color: #14acc2; font-size: 35px; line-height: 75px; height: 75px; width: 75px;" class="rounded-circle mx-auto text-center mb-3">
+            <i class="fa fa-envelope"></i>
+          </div>
+          <h4>Send messages</h4>
+          <p class="text-muted">Send messages via sockets in the real time.</p>
+        </div>
+        <div class="pt-4 pt-sm-0 mb-4 mb-sm-0 col-sm">
+          <div style="color: #fff; background-color: #14acc2; font-size: 35px; line-height: 75px; height: 75px; width: 75px;" class="rounded-circle mx-auto text-center mb-3">
+            <i class="fa fa-lock"></i>
+          </div>
+          <h4>Authentication</h4>
+          <p class="text-muted">Ready-to-go, customizable <a href="/signup">sign up</a>, <a href="/login">login</a>, and <a href="/password/forgot">password recovery</a> flows for your users.</p>
+        </div>
+        <div class="pt-4 pt-sm-0 col-sm">
+          <div style="color: #fff; background-color: #14acc2; font-size: 35px; line-height: 75px; height: 75px; width: 75px;" class="rounded-circle mx-auto text-center mb-3">
+            <i class="fa fa-credit-card"></i>
+          </div>
+          <h4>Tweet</h4>
+          <p class="text-muted">Post your tweets.</p>
+        </div>
+      </div>
+      <a class="btn btn-outline-info mt-3" href="/faq">Learn more</a>
+    </div>
+  </div>
+</div>
+<%- /* Expose locals as `window.SAILS_LOCALS` :: */ exposeLocalsToBrowser() %>

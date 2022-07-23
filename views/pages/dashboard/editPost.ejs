@@ -1,0 +1,32 @@
+<div class="container">
+    <div class="container mt-3">
+      <h2 class="mb-2">Edit your tweet</h2>
+      <form enctype="multipart/form-data" method="POST" action="/post/edit/<%=post.id%>">
+        <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+        <div class="form-group">
+          <input type="text" value="<%=post.title%>" name="title" class="form-control" required placeholder="Enter the title.">
+        </div>
+        <div class="form-group">
+          <textarea name="description" placeholder="write your tweet here!" class="form-control" required id="exampleFormControlTextarea1" rows="3"><%=post.description%></textarea>
+        </div>
+        <div class="custom-file mb-3">
+          <input type="file" name="image" onchange="showSuccess()" class="custom-file-input" id="validatedCustomFile">
+          <label class="custom-file-label" id="success" for="validatedCustomFile">Choose file...</label>
+    
+          <div class="invalid-feedback"></div>
+        </div>
+        <button type="submit" class="btn btn-warning mb-5">Edit</button>
+        <% if(error) { %>
+            <div class="alert alert-danger" role="alert">
+                error
+            </div>
+          <%}%>
+      </form>
+    </div>
+
+<script>
+    function showSuccess() {
+    document.getElementById('success').innerHTML = "Image uploaded.";
+    document.getElementById('success').style.color = "green";
+  }
+</script>

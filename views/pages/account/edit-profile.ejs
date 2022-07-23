@@ -1,0 +1,44 @@
+<div id="edit-profile" v-cloak>
+  <div class="container pt-5 pb-5">
+    <h1>Update personal info</h1>
+    <hr/>
+    <form action="/user/updateProfile" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="full_name">Full name</label>
+            <input class="form-control" value="<%-req.me.fullName%>" id="full_name" name="full_name" type="text" placeholder="Sturgis P. Sturgeon" autocomplete="name" focus-first>
+          </div>
+        </div>
+     
+     
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="email_address">Email address</label>
+            <input class="form-control" value="<%-req.me.emailAddress%>" id="email_address" name="email_address" type="email"  placeholder="sturgeon@example.com" autocomplete="email">
+          </div>
+        </div>
+        
+        <div class="col-sm-5 ml-3">
+          <div class="form-group">
+            <label class="custom-file-label" id="success" for="validatedCustomFile">Choose new avatar...</label>
+            <input type="file" name="image" onchange="showSuccess()" class="custom-file-input" v-model.trim="formData.image" id="validatedCustomFile">
+          </div>
+        </div>
+
+      </div>
+          <div class="form-group text-right">
+            <a class="btn btn-outline-info" href="/account">Cancel</a>
+            <ajax-button type="submit" :syncing="syncing" class="btn btn-dark">Save changes</ajax-button>
+          </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const showSuccess = () => {
+    document.getElementById('success').innerHTML = "Image uploaded.";
+    document.getElementById('success').style.color = "green";
+  }
+</script>
