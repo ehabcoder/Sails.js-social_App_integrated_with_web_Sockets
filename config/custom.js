@@ -61,7 +61,7 @@ module.exports.custom = {
   * (https://app.sendgrid.com/settings/api_keys)                            *
   *                                                                         *
   **************************************************************************/
-  sendgridSecret: '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',
+  sendgridSecret: 'Add Your secret key',
   //--------------------------------------------------------------------------
   // /\  Configure this to enable support for automated emails.
   // ||  (Important for password recovery, verification, contact form, etc.)
